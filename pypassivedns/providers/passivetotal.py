@@ -38,11 +38,11 @@ class PassiveTotal(Provider):
                 source = ','.join(row.get("source"))
                 if re.match("[\d\.]+$", query):
                     recs.append(
-                        PDNSResult(PassiveTotal.NAME, response_time, value, query, "A", 0, firstseen, lastseen, 0)
+                        PDNSResult("%s/%s" % (PassiveTotal.NAME, source), response_time, value, query, "A", 0, firstseen, lastseen, 0)
                     )
                 else:
                     recs.append(
-                        PDNSResult(PassiveTotal.NAME, response_time, query, value, "A", 0, firstseen, lastseen, 0)
+                        PDNSResult("%s/%s" % (PassiveTotal.NAME, source), response_time, query, value, "A", 0, firstseen, lastseen, 0)
                     )
 
         return recs                
