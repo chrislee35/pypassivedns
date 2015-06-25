@@ -15,13 +15,14 @@ class PassiveTotal(Provider):
     def __init__(self, options={}):
         self.debug = options.get("debug", False)
         self.apikey = options.get("apikey", None)
-        self.url = options.get("url", "https://www.passivetotal.org/api/passive")
+        self.version = options.get("api_version", "v1")
+        self.url = options.get("url", "https://www.passivetotal.org/api/%s/passive" % self.version)
         
     def query(self, query, limit=None):
         url = self.url
-        params = {"apikey" : self.apikey, "value" : query}
+        params = {"api_key" : self.apikey, "query" : query}
         start_time = time.time()
-        data = Provider.get_json(url, "POST", params)
+        data = Provider.get_json(url, "GET", params)
         response_time = time.time() - start_time
         return self._data_to_records(query, data, response_time)
         
@@ -29,14 +30,19 @@ class PassiveTotal(Provider):
     def _data_to_records(query, data, response_time):
         recs = []
         if data.get("results", None):
-            query = data.get("results").get("focusPoint")
-            for row in data.get("results").get("resolutions", []):
+            query = data.get("raw_query")
+            for row in data.get("results").get("records", []):
                 firstseen = datetime.datetime.strptime(row.get('firstSeen'), "%Y-%m-%d %H:%M:%S")
                 lastseen = datetime.datetime.strptime(row.get('lastSeen'), "%Y-%m-%d %H:%M:%S")
-                value = row.get("value")
+                value = row.get("resolve")
                 source = ','.join(row.get("source"))
-                recs.append(
-                    PDNSResult(PassiveTotal.NAME, response_time, query, value, "A", 0, firstseen, lastseen, 0)
-                )
+                if re.match("[\d\.]+$", query):
+                    recs.append(
+                        PDNSResult(PassiveTotal.NAME, response_time, value, query, "A", 0, firstseen, lastseen, 0)
+                    )
+                else:
+                    recs.append(
+                        PDNSResult(PassiveTotal.NAME, response_time, query, value, "A", 0, firstseen, lastseen, 0)
+                    )
 
         return recs                

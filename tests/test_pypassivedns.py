@@ -70,12 +70,15 @@ class TestPypassivedns(unittest.TestCase):
             print(rec)
 
     def test_passivetotal(self):
-        return
         klass = PassiveTotal
         provider = klass(self.config.get(klass.CONF, {}))
         recs = provider.query("example.org")
         for rec in recs:
             print(rec)
+        recs = provider.query("93.184.216.34")
+        for rec in recs:
+            print(rec)
+        
 
     def test_mnemonic(self):
         return
@@ -110,6 +113,7 @@ class TestPypassivedns(unittest.TestCase):
             print(rec)
 
     def test_bfk(self):
+        return
         klass = BFK
         provider = klass(self.config.get(klass.CONF, {}))
         recs = provider.query("example.org")
